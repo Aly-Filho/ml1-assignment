@@ -7,7 +7,9 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 
 try:
     from meu_modelo_lr import executar_lr_original
-    from meu_modelo_softmax import executar_lr_softmax
+    from meu_modelo_pairwise import executar_lr_pairwise
+    from meu_modelo_pairwise_loss import executar_lr_pairwise_loss
+
     modulos_carregados = True
 except ImportError:
     modulos_carregados = False
@@ -87,13 +89,14 @@ def executar_modelos(X_train, X_test, y_train, y_test):
     print("\n" + "="*40)
     print("Selecione a abordagem:")
     print("[1] Logistic Regression (Original)")
-    print("[2] Logistic Regression Soft-Max")
-    print("[3] Ambos")
+    print("[2] Logistic Regression Pairwise")
+    print("[3] Logistic Regression Pairwise (Focal Loss)")
+    print("[4] Todos os Modelos")
     print("="*40)
     
     while True:
-        escolha = input("\nDigite a sua escolha (1, 2 ou 3): ")
-        if escolha in ['1', '2', '3']:
+        escolha = input("\nDigite a sua escolha (1, 2, 3 ou 4): ")
+        if escolha in ['1', '2', '3', '4']:
             break
         print("⚠️ Opção inválida.")
         
@@ -102,20 +105,28 @@ def executar_modelos(X_train, X_test, y_train, y_test):
         return
 
     # 1. Regressão Logística Original
-    if escolha in ['1', '3']:
+    if escolha in ['1', '4']:
         print("\n⚙️ A treinar Regressão Logística Original...")
         # Capturamos o que a função retorna (as previsões do set de teste)
         preds = executar_lr_original(X_train, X_test, y_train, y_test)
         if preds is not None:
             mostrar_metricas(y_test, preds, "Logistic Regression (Original)")
 
-    # 2. Regressão Logística Soft-Max
-    if escolha in ['2', '3']:
-        print("\n⚙️ A treinar Regressão Logística Soft-Max...")
+    # 2. Regressão Logística Pairwise
+    if escolha in ['2', '4']:
+        print("\n⚙️ A treinar Regressão Logística Pairwise...")
         # Capturamos o que a função retorna
-        preds_sm = executar_lr_softmax(X_train, X_test, y_train, y_test)
+        preds_sm = executar_lr_pairwise(X_train, X_test, y_train, y_test)
         if preds_sm is not None:
-            mostrar_metricas(y_test, preds_sm, "Soft-Max Regression")
+            mostrar_metricas(y_test, preds_sm, "Pairwise Coupling")
+
+    # 3. Regressão Logística Pairwise with Focal Loss
+    if escolha in ['3', '4']:
+        print("\n⚙️ A treinar Regressão Logística Pairwise (Focal Loss)...")
+        # Capturamos o que a função retorna
+        preds_pw = executar_lr_pairwise_loss(X_train, X_test, y_train, y_test)
+        if preds_pw is not None:
+            mostrar_metricas(y_test, preds_pw, "Pairwise Coupling (Focal Loss)")
 
 if __name__ == "__main__":
     caminho = selecionar_dataset()
